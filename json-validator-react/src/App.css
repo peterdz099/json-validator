@@ -58,13 +58,14 @@
 }
 
 .contentWrapper form input{
-  height: 5.5vh;
+  height: 6vh;
   font-size: 1.8vh;
+  border-radius: 8px;
 }
 
 .contentWrapper form button{
   background-color: #A65C9E; 
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 1.8vh;
   border: none;
   color: white;
@@ -93,6 +94,12 @@
 
 .fade-exit {
   opacity: 0;
+}
+
+@media screen and (max-height: 200px) {
+  .mainSquare {
+    display: none;
+  }
 }
 
 
