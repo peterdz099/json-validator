@@ -1,7 +1,11 @@
 import { useRef, useState } from "react";
 import { HttpHandler } from "../handlers/HttpHandler";
 
-function Form() {
+interface FormProps {
+  onJsonValidation: (jsJsonValid: boolean, message: string, ) => void;
+}
+
+const Form: React.FC<FormProps> = (props) => {
     
     const http: HttpHandler = new HttpHandler('http://127.0.0.1:8080/validate');
 
@@ -25,26 +29,40 @@ function Form() {
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
         if (file) {
-          http.sendFile(file);
-          if (formRef.current) {
-            formRef.current.reset();
-          }
-          setFile(null);
+          let message: string = "Internal Error"
+          let jsJsonValid: boolean = false;
           
+          try{
+            http.validateJson(file).then(data => {
+                jsJsonValid = data.valid;
+                message = data.filename; //change immiediately
+                props.onJsonValidation(jsJsonValid, message);
+                if (formRef.current) {
+                  formRef.current.reset();
+                }
+                setFile(null);
+              }
+            )
+          }
+          catch(error){
+            props.onJsonValidation(jsJsonValid, message);
+          }
+
         } else {
           console.log("No file selected.");
         }
       }
 
       return (
-        <form ref={formRef} onSubmit={handleSubmit} className="fileForm">
-          <input 
-            id="jsonFile" 
-            type="file" 
-            className="form-control form-control-lg" 
-            onChange={handleFileChange} 
-            accept=".json" 
+        <form ref={formRef} onSubmit={handleSubmit}>
+          <input
+            className="form-control"
+            id="jsonFile"
+            type="file"
+            accept=".json"
             placeholder="Choose a JSON file"
+            onChange={handleFileChange}
+            lang="en-US"
           />
           <button type="submit" className="submitButton">Submit</button>
         </form>

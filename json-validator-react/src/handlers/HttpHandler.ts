@@ -1,4 +1,6 @@
 import axios from "axios";
+import { stat } from "fs";
+
 
 export class HttpHandler {
     private url: string;
@@ -7,8 +9,8 @@ export class HttpHandler {
         this.url = url;
     }
     
-    async sendFile(file: File) {
-        console.log(file);
+    async validateJson(file: File) {
+        // console.log(file);
         try {
             const formData = new FormData();
             formData.append('file', file);
@@ -23,10 +25,14 @@ export class HttpHandler {
                 },
             );
 
-            console.log(JSON.stringify(data, null, 4));
-            console.log(status);
-
-            return data;
+            // console.log(JSON.stringify(data, null));
+            // console.log(typeof(status));
+            // console.log(data);
+            // console.log(typeof(data));
+            if(status === 200){
+                return data;
+            }
+            
 
         } catch (error) {
             if (axios.isAxiosError(error)) {
@@ -38,4 +44,6 @@ export class HttpHandler {
             }
         }
     }
+
+    
 }    
