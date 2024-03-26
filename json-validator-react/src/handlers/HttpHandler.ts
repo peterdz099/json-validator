@@ -10,7 +10,6 @@ export class HttpHandler {
     }
     
     async validateJson(file: File) {
-        // console.log(file);
         try {
             const formData = new FormData();
             formData.append('file', file);
@@ -25,25 +24,16 @@ export class HttpHandler {
                 },
             );
 
-            // console.log(JSON.stringify(data, null));
-            // console.log(typeof(status));
-            // console.log(data);
-            // console.log(typeof(data));
-            if(status === 200){
-                return data;
-            }
-            
+            return data;
 
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                console.log('error message: ', error.message);
-                return error.message;
+                console.log('error message: ', error.request.responseText);
+                return {valid: false, message: error.request.responseText}
             } else {
                 console.log('unexpected error: ', error);
-                return 'An unexpected error occurred';
+                return {valid: false, message:'An unexpected error occurred'}
             }
         }
     }
-
-    
 }    

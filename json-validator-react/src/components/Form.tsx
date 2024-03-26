@@ -2,7 +2,7 @@ import { useRef, useState } from "react";
 import { HttpHandler } from "../handlers/HttpHandler";
 
 interface FormProps {
-  onJsonValidation: (jsJsonValid: boolean, message: string, ) => void;
+  onJsonValidation: (jsJsonValid: boolean, message: string, info ?: boolean ) => void;
 }
 
 const Form: React.FC<FormProps> = (props) => {
@@ -11,6 +11,7 @@ const Form: React.FC<FormProps> = (props) => {
 
     const [file, setFile] = useState<File | null>(null);
     const formRef = useRef<HTMLFormElement>(null);
+    const buttonRef = useRef<HTMLButtonElement>(null);
 
     function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
         const fileList = e.target.files;
@@ -28,28 +29,46 @@ const Form: React.FC<FormProps> = (props) => {
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
-        if (file) {
+        if (file && !buttonRef.current?.disabled) {
           let message: string = "Internal Error"
-          let jsJsonValid: boolean = false;
+          let isJsonValid: boolean = false;
           
           try{
             http.validateJson(file).then(data => {
-                jsJsonValid = data.valid;
-                message = data.filename; //change immiediately
-                props.onJsonValidation(jsJsonValid, message);
+                isJsonValid = data.valid;
+                message = data.message; 
+                props.onJsonValidation(isJsonValid, message);
                 if (formRef.current) {
                   formRef.current.reset();
                 }
+                if(buttonRef.current){
+                  buttonRef.current.disabled = true;
+                  setTimeout(() => {
+                    if(buttonRef.current){
+                      buttonRef.current.disabled = false;
+                    }
+                  }, 4000); 
+                }    
                 setFile(null);
               }
             )
           }
           catch(error){
-            props.onJsonValidation(jsJsonValid, message);
+            props.onJsonValidation(isJsonValid, message);
           }
 
         } else {
-          console.log("No file selected.");
+          if(!buttonRef.current?.disabled){
+            props.onJsonValidation(false, "Select a file", true);
+            if(buttonRef.current){
+                buttonRef.current.disabled = true;
+                setTimeout(() => {
+                  if(buttonRef.current){
+                    buttonRef.current.disabled = false;
+                  }
+                }, 4000); 
+            }
+          }
         }
       }
 
@@ -64,7 +83,7 @@ const Form: React.FC<FormProps> = (props) => {
             onChange={handleFileChange}
             lang="en-US"
           />
-          <button type="submit" className="submitButton">Submit</button>
+          <button ref={buttonRef}type="submit" className="submitButton">Submit</button>
         </form>
       );
 }

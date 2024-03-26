@@ -12,7 +12,7 @@ const Content: React.FC = () => {
         setrender(true);
         setTimeout(() => {
             setShow(true);
-        }, 100);
+        }, 10);
 
         setTimeout(() => {
             setShow(false);
@@ -23,9 +23,9 @@ const Content: React.FC = () => {
         }, 3000); 
     }
 
-    const handleChildValue = (isJsonValid: boolean, message: string ) => {
+    const handleChildValue = (isJsonValid: boolean, message: string, info ?: boolean ) => {
         setMessage(message);
-        isJsonValid ? setPromptType("success") :setPromptType("danger");
+        isJsonValid ? setPromptType("success") : (info ? setPromptType("primary"): setPromptType("danger"));
         showPrompt();
       };
 
