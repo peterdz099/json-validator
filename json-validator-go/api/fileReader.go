@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -43,11 +44,41 @@ func readFile(c *gin.Context) (Policy, string, error) {
 
 	var policy Policy
 	err = json.Unmarshal(fileBytes, &policy)
+	correct := isPolicyStructureCorrect(policy)
 	if err != nil {
 		fmt.Println("Error decoding JSON:", err)
 		c.String(http.StatusBadRequest, "Invalid JSON format")
 		return Policy{}, "", err
+	} else if !correct {
+		fmt.Println("Invalid JSON format")
+		c.String(http.StatusBadRequest, "Invalid JSON format")
+		return Policy{}, "", errors.New("reading JSON: not valid JSON format")
+	}
+	return policy, file.Filename, nil
+}
+
+func isPolicyStructureCorrect(policy Policy) bool {
+	policyDocumentBytes, err := json.Marshal(policy.PolicyDocument)
+	if err != nil {
+		return false
 	}
 
-	return policy, file.Filename, nil
+	var policyDocument PolicyDocument
+	err = json.Unmarshal(policyDocumentBytes, &policyDocument)
+	if err != nil {
+		return false
+	}
+
+	policyDocumentStatmentBytes, err := json.Marshal(policy.PolicyDocument.Statement)
+	if err != nil {
+		return false
+	}
+
+	var policyDocumentStatment Statement
+	err = json.Unmarshal(policyDocumentStatmentBytes, &policyDocumentStatment)
+	if err == nil {
+		return true
+	} else {
+		return false
+	}
 }

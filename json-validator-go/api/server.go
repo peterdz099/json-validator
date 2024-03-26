@@ -26,8 +26,6 @@ func validate(c *gin.Context) {
 		if err != nil {
 			return
 		}
-
 		c.Data(http.StatusOK, "application/json", returnData)
 	}
-
 }
