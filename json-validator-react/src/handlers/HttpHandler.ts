@@ -1,6 +1,4 @@
 import axios from "axios";
-import { stat } from "fs";
-
 
 export class HttpHandler {
     private url: string;

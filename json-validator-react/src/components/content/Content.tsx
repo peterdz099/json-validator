@@ -1,5 +1,6 @@
+import './Content.css';
 import React, { useState } from "react";
-import Form from "./Form";
+import Form from "../form/Form";
 
 
 const Content: React.FC = () => {
@@ -32,7 +33,7 @@ const Content: React.FC = () => {
     return (
         <div className="mainSquare">
             <div className="logoWrapper">
-                <img src={require('../assets/logo.png')} alt="Logo" />
+                <img src={require('../../assets/logo.png')} alt="Logo" />
             </div>
             <div className="contentWrapper">
                 {render && <div className="alert-message" >

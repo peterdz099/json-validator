@@ -1,5 +1,6 @@
+import './Form.css';
 import { useRef, useState } from "react";
-import { HttpHandler } from "../handlers/HttpHandler";
+import { HttpHandler } from "../../handlers/HttpHandler";
 
 interface FormProps {
   onJsonValidation: (jsJsonValid: boolean, message: string, info ?: boolean ) => void;
