@@ -74,7 +74,7 @@ func isPolicyStructureCorrect(policy Policy) bool {
 		return false
 	}
 
-	var policyDocumentStatment Statement
+	var policyDocumentStatment []Statement
 	err = json.Unmarshal(policyDocumentStatmentBytes, &policyDocumentStatment)
 	if err == nil {
 		return true
