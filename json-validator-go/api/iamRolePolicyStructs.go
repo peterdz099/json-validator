@@ -11,10 +11,10 @@ type PolicyDocument struct {
 }
 
 type Statement struct {
-	Sid       string      `json:"Sid,omitempty"`
-	Effect    string      `json:"Effect"`
-	Principal interface{} `json:"Principal,omitempty"`
-	Action    []string    `json:"Action"`
-	Resource  interface{} `json:"Resource,omitempty"`
-	Condition interface{} `json:"Conditio,omitempty"`
+	Sid    string `json:"Sid,omitempty"`
+	Effect string `json:"Effect"`
+	// Principal interface{} `json:"Principal,omitempty"`
+	Action   []string    `json:"Action"`
+	Resource interface{} `json:"Resource,omitempty"`
+	// Condition interface{} `json:"Conditio,omitempty"`
 }

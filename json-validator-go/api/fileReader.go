@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -15,16 +16,17 @@ func readFile(c *gin.Context) (Policy, string, error) {
 	file, err := c.FormFile("file")
 
 	if err != nil {
-		if file != nil {
-			if fileExtension := strings.ToLower(file.Filename[len(file.Filename)-4:]); fileExtension != "json" {
-				fmt.Println("Wrong file extension:", err)
-				c.String(http.StatusUnsupportedMediaType, "Wrong file extension")
-				return Policy{}, "", err
-			}
-		}
 		fmt.Println("Error reading request body:", err)
 		c.String(http.StatusBadRequest, "Bad request")
 		return Policy{}, "", err
+	}
+
+	if file != nil {
+		if fileExtension := strings.ToLower(file.Filename[len(file.Filename)-4:]); fileExtension != "json" {
+			fmt.Println("Wrong file extension:", err)
+			c.String(http.StatusUnsupportedMediaType, "Wrong file extension")
+			return Policy{}, "", err
+		}
 	}
 
 	fileContent, err := file.Open()
@@ -50,7 +52,7 @@ func readFile(c *gin.Context) (Policy, string, error) {
 		c.String(http.StatusBadRequest, "Invalid JSON format")
 		return Policy{}, "", err
 	} else if !correct {
-		fmt.Println("Invalid JSON format")
+		fmt.Println("Invalid Policy structure")
 		c.String(http.StatusBadRequest, "Invalid JSON format")
 		return Policy{}, "", errors.New("reading JSON: not valid JSON format")
 	}
@@ -76,9 +78,17 @@ func isPolicyStructureCorrect(policy Policy) bool {
 
 	var policyDocumentStatment []Statement
 	err = json.Unmarshal(policyDocumentStatmentBytes, &policyDocumentStatment)
+
 	if err == nil {
+		for _, statement := range policyDocumentStatment {
+			typeOfResource := reflect.TypeOf(statement.Resource)
+			if typeOfResource != reflect.TypeOf("") && typeOfResource != reflect.TypeOf([]string{}) {
+				return false
+			}
+		}
 		return true
 	} else {
 		return false
 	}
+
 }

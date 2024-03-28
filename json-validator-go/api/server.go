@@ -15,7 +15,6 @@ func ApiServer() *gin.Engine {
 }
 
 func validate(c *gin.Context) {
-
 	policy, filename, err := readFile(c)
 	if err != nil {
 		return
