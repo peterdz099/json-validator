@@ -1,0 +1,17 @@
+{
+    "PolicyName": "IAMRoleAccessWithSid",
+    "PolicyDocument": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "IAMRoleAccessSid",
+          "Effect": "Allow",
+          "Action": "iam:PassRole",
+          "Resource": [
+            "arn:aws:iam::123456789012:role/Role1",
+            "arn:aws:iam::123456789012:role/Role2"
+          ]
+        }
+      ]
+    }
+  }

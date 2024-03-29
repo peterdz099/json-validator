@@ -1,0 +1,18 @@
+{
+    "PolicyName": "SSMParameterAccess",
+    "PolicyDocument": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": "ssm:GetParameter",
+          "Resource": [
+            "arn:aws:ssm:us-east-1:123456789012:parameter/Parameter1",
+            "arn:aws:ssm:us-east-1:123456789012:parameter/Parameter2",
+            "arn:aws:ssm:us-east-1:123456789012:parameter/Parameter3",
+            "arn:aws:ssm:us-east-1:123456789012:parameter/*"
+          ]
+        }
+      ]
+    }
+  }

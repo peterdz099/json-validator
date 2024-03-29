@@ -1,0 +1,17 @@
+{
+    "PolicyName": "SNSReadAccessWithSid",
+    "PolicyDocument": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "SNSReadAccessSid",
+          "Effect": "Allow",
+          "Action": [
+            "sns:Subscribe",
+            "lambda:InvokeFunction"
+          ],
+          "Resource": "arn:aws:sns:us-east-1:123456789012:ExampleTopic"
+        }
+      ]
+    }
+}

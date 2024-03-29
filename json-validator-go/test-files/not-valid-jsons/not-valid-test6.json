@@ -1,0 +1,26 @@
+{
+    "PolicyName": "SQSAccessWithSid",
+    "PolicyDocument": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Sid": "SQSAccessSid",
+          "Effect": "Allow",
+          "Action": "sqs:ReceiveMessage",
+          "Resource": [
+            "arn:aws:sqs:us-east-1:123456789012:queue1",
+            "arn:aws:sqs:us-east-1:123456789012:queue2"
+          ]
+        },
+        {
+            "Sid": "IamListAccess",
+            "Effect": "Allow",
+            "Action": [
+                "iam:ListRoles",
+                "sqs:ReceiveMessage"
+            ],
+            "Resource": "*"
+        }
+      ]
+    }
+  }

@@ -1,0 +1,31 @@
+{
+    "PolicyName": "FullAccessToBucket",
+    "PolicyDocument": {
+      "Version": "2012-10-17",
+      "Statement": [
+        {
+          "Effect": "Allow",
+          "Action": "s3:*",
+          "Resource": "arn:aws:sqs:us-east-1:123456789012:queue2"
+        },
+        {
+            "Sid": "SNSReadAccessSid",
+            "Effect": "Allow",
+            "Action": [
+                "sns:Subscribe",
+                "s3:*"
+            ],
+            "Resource": "arn:aws:sns:us-east-1:123456789012:ExampleTopic"
+        },
+        {
+            "Sid": "SNSReadAccessSid",
+            "Effect": "Allow",
+            "Action": "sns:Subscribe",
+            "Resource": [
+                "arn:aws:sns:us-east-1:123456789012:ExampleTopic",
+                "arn:aws:lambda:us-east-1:123456789012:function:Function2"
+            ]
+        }
+      ]
+    }
+  }
