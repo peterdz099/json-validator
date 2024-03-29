@@ -1,6 +1,9 @@
 package api
 
-import "regexp"
+import (
+	"fmt"
+	"regexp"
+)
 
 func isJsonValid(policy Policy) bool {
 	var statements []Statement = policy.PolicyDocument.Statement
@@ -8,12 +11,13 @@ func isJsonValid(policy Policy) bool {
 		if statement.Resource != nil {
 			switch res := statement.Resource.(type) {
 			case string:
-				if regexp.MustCompile(`^[^*]*\*[^*]*$`).MatchString(res) {
+				if regexp.MustCompile(`\*`).MatchString(res) {
 					return false
 				}
-			case []string:
+			case []interface{}:
 				for _, r := range res {
-					if regexp.MustCompile(`^[^*]*\*[^*]*$`).MatchString(r) {
+					if regexp.MustCompile(`\*`).MatchString(fmt.Sprint(r)) {
+
 						return false
 					}
 				}

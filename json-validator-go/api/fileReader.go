@@ -1,12 +1,11 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"reflect"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -17,13 +16,13 @@ func readFile(c *gin.Context) (Policy, string, error) {
 
 	if err != nil {
 		fmt.Println("Error reading request body:", err)
-		c.String(http.StatusBadRequest, "Bad request")
+		c.String(http.StatusBadRequest, err.Error())
 		return Policy{}, "", err
 	}
 
 	if file != nil {
 		if fileExtension := strings.ToLower(file.Filename[len(file.Filename)-4:]); fileExtension != "json" {
-			fmt.Println("Wrong file extension:", err)
+			fmt.Println("file error: Wrong file extension")
 			c.String(http.StatusUnsupportedMediaType, "Wrong file extension")
 			return Policy{}, "", err
 		}
@@ -32,7 +31,7 @@ func readFile(c *gin.Context) (Policy, string, error) {
 	fileContent, err := file.Open()
 	if err != nil {
 		fmt.Println("Error opening file:", err)
-		c.String(http.StatusInternalServerError, "Internal server error - Openning file")
+		c.String(http.StatusInternalServerError, err.Error())
 		return Policy{}, "", err
 	}
 	defer fileContent.Close()
@@ -40,55 +39,26 @@ func readFile(c *gin.Context) (Policy, string, error) {
 	fileBytes, err := io.ReadAll(fileContent)
 	if err != nil {
 		fmt.Println("Error reading file:", err)
-		c.String(http.StatusInternalServerError, "Internal server error - Reading file")
+		c.String(http.StatusInternalServerError, err.Error())
 		return Policy{}, "", err
 	}
 
 	var policy Policy
-	err = json.Unmarshal(fileBytes, &policy)
-	correct := isPolicyStructureCorrect(policy)
-	if err != nil {
-		fmt.Println("Error decoding JSON:", err)
-		c.String(http.StatusBadRequest, "Invalid JSON format")
+	decoder := json.NewDecoder(bytes.NewReader(fileBytes))
+	decoder.DisallowUnknownFields()
+	decodeErr := decoder.Decode(&policy)
+
+	if decodeErr != nil {
+		fmt.Println("Error decoding JSON:", decodeErr)
+		c.String(http.StatusBadRequest, "invalid format: invalid json format")
+		return Policy{}, "", decodeErr
+	}
+
+	isFormatValid, err := verifyJsonFormat(policy)
+	if !isFormatValid && err != nil {
+		fmt.Println(err)
+		c.String(http.StatusBadRequest, err.Error())
 		return Policy{}, "", err
-	} else if !correct {
-		fmt.Println("Invalid Policy structure")
-		c.String(http.StatusBadRequest, "Invalid JSON format")
-		return Policy{}, "", errors.New("reading JSON: not valid JSON format")
 	}
 	return policy, file.Filename, nil
-}
-
-func isPolicyStructureCorrect(policy Policy) bool {
-	policyDocumentBytes, err := json.Marshal(policy.PolicyDocument)
-	if err != nil {
-		return false
-	}
-
-	var policyDocument PolicyDocument
-	err = json.Unmarshal(policyDocumentBytes, &policyDocument)
-	if err != nil {
-		return false
-	}
-
-	policyDocumentStatmentBytes, err := json.Marshal(policy.PolicyDocument.Statement)
-	if err != nil {
-		return false
-	}
-
-	var policyDocumentStatment []Statement
-	err = json.Unmarshal(policyDocumentStatmentBytes, &policyDocumentStatment)
-
-	if err == nil {
-		for _, statement := range policyDocumentStatment {
-			typeOfResource := reflect.TypeOf(statement.Resource)
-			if typeOfResource != reflect.TypeOf("") && typeOfResource != reflect.TypeOf([]string{}) {
-				return false
-			}
-		}
-		return true
-	} else {
-		return false
-	}
-
 }
