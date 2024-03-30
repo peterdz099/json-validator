@@ -35,15 +35,13 @@
     text-align: center;
   }
   
-  .alert-message{
-    height: 5vh;
-  }
   
   .alert{
-      height: 100%;
-      font-size: 2vh;
+      height: auto;
+      font-size: 90%;
       padding: 0;
       padding-top: 1vh !important;
+      padding-bottom: 1vh !important;
       opacity: 0;
       transition: opacity 0.5s ease-in-out;
   } 

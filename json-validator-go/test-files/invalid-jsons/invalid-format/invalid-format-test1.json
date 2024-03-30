@@ -25,10 +25,7 @@
                 "iam:ListRoles",
                 "iam:ListUsers"
             ]
-        }
+        },
       ]
   }
 }
-
-
-

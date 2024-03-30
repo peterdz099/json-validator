@@ -1,5 +1,6 @@
 { 
   "PolicyName": "root",
+  "policy": "rooooot",
   "PolicyDocument": {
       "Version": "2012-10-17",
       "Statement": [
@@ -21,14 +22,11 @@
             "Resource": "arn:aws:sns:us-east-1:123456789012:ExampleTopic",
             "Effect": "Allow",
             "Sid": "IamListAccess",
-            "Action": [
+            "Action": 
                 "iam:ListRoles",
                 "iam:ListUsers"
-            ]
+            
         }
       ]
   }
 }
-
-
-

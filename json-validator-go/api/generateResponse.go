@@ -24,7 +24,6 @@ func generateRespone(c *gin.Context, valid bool, filename string) ([]byte, error
 	response := Response{Valid: valid, Message: message}
 	jsonData, err := json.Marshal(response)
 	if err != nil {
-		fmt.Println("Error encoding JSON:", err)
 		c.String(http.StatusInternalServerError, "Internal Server Error - Generating Response")
 		return nil, err
 	}

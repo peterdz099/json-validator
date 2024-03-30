@@ -5,7 +5,12 @@ import (
 	"reflect"
 )
 
-// this function checks if json contains all required fields
+/*
+This function checks that the JSON contains all required fields,
+that Statement.Effect has a valid value, and that the fields declared
+as interface{} (Statement.Resource, Statement.Action) are of the specified type,
+since these cases are not verified by the JSON decoder.
+*/
 func verifyJsonFormat(policy Policy) (bool, error) {
 	isDocumentValid, err := checkDocumentFormat(policy.PolicyDocument)
 	if policy.PolicyName != "" {
@@ -19,7 +24,8 @@ func verifyJsonFormat(policy Policy) (bool, error) {
 		}
 	} else if policy.PolicyName == "" {
 		if !isDocumentValid {
-			return false, errors.New("invalid format: invalid JSON format")
+			return false, errors.New("invalid format: empty PolicyName and PolicyDocument fields")
+
 		}
 		return false, errors.New("invalid format: empty PolicyName field")
 	}
@@ -28,11 +34,14 @@ func verifyJsonFormat(policy Policy) (bool, error) {
 
 func checkDocumentFormat(policyDocument PolicyDocument) (bool, error) {
 	if policyDocument.Version == "" && len(policyDocument.Statement) == 0 {
-		return false, errors.New("invalid format: empty PolicyDocument")
+		return false, errors.New("invalid format: empty PolicyDocument field")
+
 	} else if policyDocument.Version == "" {
 		return false, errors.New("invalid format: empty Version field")
+
 	} else if len(policyDocument.Statement) == 0 {
 		return false, errors.New("invalid format: empty Statement field")
+
 	}
 	return true, nil
 }
@@ -49,8 +58,9 @@ func checkStatementList(policyDocumentStatement []Statement) (bool, error) {
 
 // SID is optional field, so may be empty, type checked by decoder
 func verifySingleStatement(statement Statement) (bool, error) {
-	if statement.Effect == "" {
-		return false, errors.New("invalid format: found empty Effect field")
+	isEffectValid, err := verifyEffectField(statement)
+	if !isEffectValid && err != nil {
+		return false, err
 	}
 
 	isActionValid, err := verifyActionField(statement)
@@ -65,12 +75,25 @@ func verifySingleStatement(statement Statement) (bool, error) {
 	return true, nil
 }
 
+func verifyEffectField(statement Statement) (bool, error) {
+	if statement.Effect == "" {
+		return false, errors.New("invalid format: found empty Effect field")
+
+	} else if statement.Effect != "Allow" && statement.Effect != "Deny" {
+		return false, errors.New("invalid value: found invalid Effect value")
+
+	} else {
+		return true, nil
+	}
+}
+
 func verifyActionField(statement Statement) (bool, error) {
 	if statement.Action != nil {
 		switch action := statement.Action.(type) {
 		case string:
 			if action == "" {
 				return false, errors.New("invalid format: found empty Action field")
+
 			} else {
 				return true, nil
 			}
@@ -78,7 +101,7 @@ func verifyActionField(statement Statement) (bool, error) {
 			if len(action) > 0 {
 				for _, a := range action {
 					if reflect.TypeOf(a).Kind() != reflect.String {
-						return false, errors.New("invalid format: found invalid Action type")
+						return false, errors.New("invalid type: found invalid field type")
 					}
 				}
 			} else {
@@ -86,7 +109,7 @@ func verifyActionField(statement Statement) (bool, error) {
 			}
 
 		default:
-			return false, errors.New("invalid format: found invalid Action type")
+			return false, errors.New("invalid type: found invalid field type")
 		}
 	} else {
 		return false, errors.New("invalid format: Action in Statement is required")
@@ -106,14 +129,14 @@ func verifyResourceField(statement Statement) (bool, error) {
 			if len(res) > 0 {
 				for _, r := range res {
 					if reflect.TypeOf(r).Kind() != reflect.String {
-						return false, errors.New("invalid format: found invalid Resource type")
+						return false, errors.New("invalid type: found invalid field type")
 					}
 				}
 			} else {
 				return false, errors.New("invalid format: found empty Resource field")
 			}
 		default:
-			return false, errors.New("invalid format: found invalid Resource type")
+			return false, errors.New("invalid type: found invalid field type")
 		}
 	} else {
 		return false, errors.New("invalid format: Resource in Statement is required")

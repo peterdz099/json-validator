@@ -1,5 +1,6 @@
 { 
   "PolicyName": "root",
+  "policy": "rooooot",
   "PolicyDocument": {
       "Version": "2012-10-17",
       "Statement": [
@@ -25,10 +26,7 @@
                 "iam:ListRoles",
                 "iam:ListUsers"
             ]
-        }
+        }}}}
       ]
   }
 }
-
-
-

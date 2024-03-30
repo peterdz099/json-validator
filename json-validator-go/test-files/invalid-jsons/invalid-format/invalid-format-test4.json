@@ -1,4 +1,4 @@
-{ 
+{
   "PolicyName": "root",
   "PolicyDocument": {
       "Version": "2012-10-17",
@@ -21,6 +21,7 @@
             "Resource": "arn:aws:sns:us-east-1:123456789012:ExampleTopic",
             "Effect": "Allow",
             "Sid": "IamListAccess",
+            "DOUBLES": "asdsad",
             "Action": [
                 "iam:ListRoles",
                 "iam:ListUsers"
@@ -29,6 +30,3 @@
       ]
   }
 }
-
-
-

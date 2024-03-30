@@ -17,7 +17,6 @@ func isJsonValid(policy Policy) bool {
 			case []interface{}:
 				for _, r := range res {
 					if regexp.MustCompile(`\*`).MatchString(fmt.Sprint(r)) {
-
 						return false
 					}
 				}
