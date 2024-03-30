@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"json-validator/internal/messages"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,15 +18,16 @@ type Response struct {
 func GenerateRespone(c *gin.Context, valid bool, filename string) ([]byte, error) {
 	var message string
 	if valid {
-		message = fmt.Sprintf("JSON from file %s is VALID", filename)
+		message = fmt.Sprintf(messages.VALID, filename)
+
 	} else {
-		message = fmt.Sprintf("JSON from file %s is NOT VALID", filename)
+		message = fmt.Sprintf(messages.NOT_VALID, filename)
 	}
 
 	response := Response{Valid: valid, Message: message}
 	jsonData, err := json.Marshal(response)
 	if err != nil {
-		c.String(http.StatusInternalServerError, "Internal Server Error - Generating Response")
+		c.String(http.StatusInternalServerError, messages.INTERNAL_ERR)
 		return nil, err
 	}
 	return jsonData, nil

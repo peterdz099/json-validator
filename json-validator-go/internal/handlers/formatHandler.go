@@ -3,6 +3,8 @@ package handlers
 import (
 	"errors"
 	"reflect"
+
+	"json-validator/internal/messages"
 )
 
 /*
@@ -12,10 +14,10 @@ as interface{} (Statement.Resource, Statement.Action) are of the specified type,
 since these cases are not verified by the JSON decoder.
 */
 func verifyJsonFormat(policy Policy) (bool, error) {
-	isDocumentValid, err := checkDocumentFormat(policy.PolicyDocument)
+	isDocumentValid, err := verifyDocumentFormat(policy.PolicyDocument)
 	if policy.PolicyName != "" {
 		if isDocumentValid && err == nil {
-			isStatementListValid, err := checkStatementList(policy.PolicyDocument.Statement)
+			isStatementListValid, err := verifyStatementList(policy.PolicyDocument.Statement)
 			if !isStatementListValid && err != nil {
 				return false, err
 			}
@@ -24,29 +26,29 @@ func verifyJsonFormat(policy Policy) (bool, error) {
 		}
 	} else if policy.PolicyName == "" {
 		if !isDocumentValid {
-			return false, errors.New("invalid format: empty PolicyName and PolicyDocument fields")
+			return false, errors.New(messages.EMPTY_FIELDS_ERR)
 
 		}
-		return false, errors.New("invalid format: empty PolicyName field")
+		return false, errors.New(messages.EMPTY_POLICYNAME_ERR)
 	}
 	return true, nil
 }
 
-func checkDocumentFormat(policyDocument PolicyDocument) (bool, error) {
+func verifyDocumentFormat(policyDocument PolicyDocument) (bool, error) {
 	if policyDocument.Version == "" && len(policyDocument.Statement) == 0 {
-		return false, errors.New("invalid format: empty PolicyDocument field")
+		return false, errors.New(messages.EMPTY_DOCUMENT_ERR)
 
 	} else if policyDocument.Version == "" {
-		return false, errors.New("invalid format: empty Version field")
+		return false, errors.New(messages.EMPTY_VERSION_ERR)
 
 	} else if len(policyDocument.Statement) == 0 {
-		return false, errors.New("invalid format: empty Statement field")
+		return false, errors.New(messages.EMPTY_STATEMENT_ERR)
 
 	}
 	return true, nil
 }
 
-func checkStatementList(policyDocumentStatement []Statement) (bool, error) {
+func verifyStatementList(policyDocumentStatement []Statement) (bool, error) {
 	for _, statement := range policyDocumentStatement {
 		isStatmentValid, err := verifySingleStatement(statement)
 		if !isStatmentValid && err != nil {
@@ -77,10 +79,10 @@ func verifySingleStatement(statement Statement) (bool, error) {
 
 func verifyEffectField(statement Statement) (bool, error) {
 	if statement.Effect == "" {
-		return false, errors.New("invalid format: found empty Effect field")
+		return false, errors.New(messages.EMPTY_EFFECT_ERR)
 
 	} else if statement.Effect != "Allow" && statement.Effect != "Deny" {
-		return false, errors.New("invalid value: found invalid Effect value")
+		return false, errors.New(messages.INVALID_VALUE_ERR)
 
 	} else {
 		return true, nil
@@ -92,7 +94,7 @@ func verifyActionField(statement Statement) (bool, error) {
 		switch action := statement.Action.(type) {
 		case string:
 			if action == "" {
-				return false, errors.New("invalid format: found empty Action field")
+				return false, errors.New(messages.EMPTY_ACTION_ERR)
 
 			} else {
 				return true, nil
@@ -101,45 +103,46 @@ func verifyActionField(statement Statement) (bool, error) {
 			if len(action) > 0 {
 				for _, a := range action {
 					if reflect.TypeOf(a).Kind() != reflect.String {
-						return false, errors.New("invalid type: found invalid field type")
+						return false, errors.New((messages.INVALID_TYPE_ERR))
 					}
 				}
 			} else {
-				return false, errors.New("invalid format: found empty Action field")
+				return false, errors.New(messages.EMPTY_ACTION_ERR)
 			}
 
 		default:
-			return false, errors.New("invalid type: found invalid field type")
+			return false, errors.New((messages.INVALID_TYPE_ERR))
 		}
 	} else {
-		return false, errors.New("invalid format: Action in Statement is required")
+		return false, errors.New(messages.EMPTY_ACTION_ERR)
 	}
+
 	return true, nil
 }
 
 func verifyResourceField(statement Statement) (bool, error) {
 	if statement.Resource != nil {
-
 		switch res := statement.Resource.(type) {
 		case string:
 			if res == "" {
-				return false, errors.New("invalid format: found empty Resource field")
+				return false, errors.New(messages.EMPTY_RESOURCE_ERR)
 			}
 		case []interface{}:
 			if len(res) > 0 {
 				for _, r := range res {
 					if reflect.TypeOf(r).Kind() != reflect.String {
-						return false, errors.New("invalid type: found invalid field type")
+						return false, errors.New((messages.INVALID_TYPE_ERR))
 					}
 				}
 			} else {
-				return false, errors.New("invalid format: found empty Resource field")
+				return false, errors.New(messages.EMPTY_RESOURCE_ERR)
 			}
 		default:
-			return false, errors.New("invalid type: found invalid field type")
+			return false, errors.New(messages.INVALID_TYPE_ERR)
 		}
 	} else {
-		return false, errors.New("invalid format: Resource in Statement is required")
+		return false, errors.New(messages.EMPTY_RESOURCE_ERR)
 	}
+
 	return true, nil
 }

@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"strings"
 
+	"json-validator/internal/messages"
+
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +23,7 @@ func ReadFile(c *gin.Context) (Policy, string, error) {
 
 	if file != nil {
 		if fileExtension := strings.ToLower(file.Filename[len(file.Filename)-4:]); fileExtension != "json" {
-			c.String(http.StatusUnsupportedMediaType, "Wrong file extension")
+			c.String(http.StatusUnsupportedMediaType, messages.UNSUPPORTED_FILE_ERR)
 			return Policy{}, "", err
 		}
 	}
@@ -46,9 +48,9 @@ func ReadFile(c *gin.Context) (Policy, string, error) {
 
 	if decodeErr != nil {
 		if reflect.TypeOf(decodeErr) == reflect.TypeOf(&json.UnmarshalTypeError{}) {
-			c.String(http.StatusBadRequest, "invalid type: found invalid field type")
+			c.String(http.StatusBadRequest, messages.INVALID_TYPE_ERR)
 		} else {
-			c.String(http.StatusBadRequest, "invalid format: invalid JSON format")
+			c.String(http.StatusBadRequest, messages.INVALID_FORMAT_ERR)
 		}
 		return Policy{}, "", decodeErr
 	}
