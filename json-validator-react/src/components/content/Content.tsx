@@ -1,16 +1,18 @@
-import './Content.css';
 import React, { useState } from "react";
-import Form from "../form/Form";
+import { Form, JsonValidationCallback } from '../form/Form';
+import './Content.css';
+
+import logo from "../../assets/images/logo.png"
 
 
-const Content: React.FC = () => {
+export const Content: React.FC = () => {
     const [show, setShow] = useState<boolean>(false);
-    const [render, setrender] = useState<boolean>(false);
+    const [render, setRender] = useState<boolean>(false);
     const [message, setMessage] = useState<string>();
     const [promptType, setPromptType] = useState<string>();
 
-    function showPrompt() {
-        setrender(true);
+    function showPrompt(): void {
+        setRender(true);
         setTimeout(() => {
             setShow(true);
         }, 10);
@@ -18,22 +20,22 @@ const Content: React.FC = () => {
         setTimeout(() => {
             setShow(false);
             setTimeout(() => {
-                setrender(false);
+                setRender(false);
             }, 500);
             
         }, 3000); 
     }
 
-    const handleChildValue = (isJsonValid: boolean, message: string, info ?: boolean ) => {
+    const handleChildValue: JsonValidationCallback = (isJsonValid, message, info = false) => {
         setMessage(message);
         isJsonValid ? setPromptType("success") : (info ? setPromptType("primary"): setPromptType("danger"));
         showPrompt();
-      };
+    };
 
     return (
         <div className="mainSquare">
             <div className="logoWrapper">
-                <img src={require('../../assets/logo.png')} alt="Logo" />
+                <img src={logo} alt="Logo" />
             </div>
             <div className="contentWrapper">
                 {render && <div className="alert-message" >
@@ -50,5 +52,3 @@ const Content: React.FC = () => {
         </div>
     );
 }
-
-export default Content;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Content from './components/content/Content';
+import { Content } from './components/content/Content';
 
 
 function App() {
