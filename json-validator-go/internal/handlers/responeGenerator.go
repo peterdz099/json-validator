@@ -1,4 +1,4 @@
-package api
+package handlers
 
 import (
 	"encoding/json"
@@ -13,7 +13,7 @@ type Response struct {
 	Message string `json:"message"`
 }
 
-func generateRespone(c *gin.Context, valid bool, filename string) ([]byte, error) {
+func GenerateRespone(c *gin.Context, valid bool, filename string) ([]byte, error) {
 	var message string
 	if valid {
 		message = fmt.Sprintf("JSON from file %s is VALID", filename)

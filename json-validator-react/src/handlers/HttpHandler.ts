@@ -26,6 +26,9 @@ export class HttpHandler {
 
         } catch (error) {
             if (axios.isAxiosError(error)) {
+                if (error.request.responseText != ""){
+                    return {valid: false, message: error.request.responseText}
+                }
                 return {valid: false, message: error.message}
             } else {
                 return {valid: false, message: "An unexpected error occurred"}

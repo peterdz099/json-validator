@@ -1,6 +1,9 @@
-package api
+package routes
 
 import (
+	"json-validator/internal/handlers"
+	"json-validator/internal/routes"
+
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -18,9 +21,9 @@ import (
 func TestValidJsons(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.POST("/validate", validate)
+	router.POST("/validate", routes.Validate)
 
-	folderPath := "../test-files/valid-jsons"
+	folderPath := "./test-data/valid-jsons"
 	files, err := os.ReadDir(folderPath)
 	if err != nil {
 		t.Fatalf("Failed to read directory: %v", err)
@@ -63,7 +66,7 @@ func TestValidJsons(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code)
 
 		message := fmt.Sprintf("JSON from file %s is VALID", filename)
-		expectedData := Response{
+		expectedData := handlers.Response{
 			Valid:   true,
 			Message: message,
 		}
@@ -80,9 +83,9 @@ func TestValidJsons(t *testing.T) {
 func TestNotValidJsons(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.POST("/validate", validate)
+	router.POST("/validate", routes.Validate)
 
-	folderPath := "../test-files/not-valid-jsons"
+	folderPath := "./test-data/not-valid-jsons"
 	files, err := os.ReadDir(folderPath)
 	if err != nil {
 		t.Fatalf("Failed to read directory: %v", err)
@@ -126,7 +129,7 @@ func TestNotValidJsons(t *testing.T) {
 		assert.Equal(t, http.StatusOK, response.Code, "Expected HTTP status 200")
 
 		message := fmt.Sprintf("JSON from file %s is NOT VALID", filename)
-		expectedData := Response{
+		expectedData := handlers.Response{
 			Valid:   false,
 			Message: message,
 		}
@@ -140,116 +143,12 @@ func TestNotValidJsons(t *testing.T) {
 	}
 }
 
-func TestUnsupportedMediaType(t *testing.T) {
-	gin.SetMode(gin.ReleaseMode)
-	router := gin.New()
-	router.POST("/validate", validate)
-
-	filePath := "../test-files/test.txt"
-	fileContent, err := os.ReadFile(filePath)
-	if err != nil {
-		t.Fatalf("Failed to read file: %v", err)
-	}
-
-	var requestBody bytes.Buffer
-	multipartWriter := multipart.NewWriter(&requestBody)
-
-	fileWriter, err := multipartWriter.CreateFormFile("file", filepath.Base(filePath))
-	if err != nil {
-		t.Fatalf("Failed to create form file: %v", err)
-	}
-	if _, err := fileWriter.Write(fileContent); err != nil {
-		t.Fatalf("Failed to write file content: %v", err)
-	}
-
-	if err := multipartWriter.Close(); err != nil {
-		t.Fatalf("Failed to close multipart writer: %v", err)
-	}
-
-	request, err := http.NewRequest("POST", "/validate", &requestBody)
-	if err != nil {
-		t.Fatalf("Failed to create request: %v", err)
-	}
-
-	request.Header.Set("Content-Type", multipartWriter.FormDataContentType())
-
-	response := httptest.NewRecorder()
-
-	router.ServeHTTP(response, request)
-
-	assert.Equal(t, http.StatusUnsupportedMediaType, response.Code, "Expected HTTP status 415")
-
-}
-
-func TestBadRequest(t *testing.T) {
-	gin.SetMode(gin.ReleaseMode)
-	router := gin.New()
-	router.POST("/validate", validate)
-
-	testData := []byte(`{"key": "value"}`)
-	request, _ := http.NewRequest("POST", "/validate", bytes.NewBuffer(testData))
-	request.Header.Set("Content-Type", "application/json")
-
-	response := httptest.NewRecorder()
-	router.ServeHTTP(response, request)
-
-	assert.Equal(t, http.StatusBadRequest, response.Code, "Expected HTTP status 400")
-
-	request, _ = http.NewRequest("GET", "/validate", bytes.NewBuffer(testData))
-	request.Header.Set("Content-Type", "application/json")
-
-	response = httptest.NewRecorder()
-	router.ServeHTTP(response, request)
-
-	assert.Equal(t, http.StatusNotFound, response.Code, "Expected HTTP status 404")
-}
-
-func TestNotFound(t *testing.T) {
-	gin.SetMode(gin.ReleaseMode)
-	router := gin.New()
-	router.POST("/validate", validate)
-
-	filePath := "../test-files/valid-jsons/valid-test1.json"
-	fileContent, err := os.ReadFile(filePath)
-	if err != nil {
-		t.Fatalf("Failed to read file: %v", err)
-	}
-
-	var requestBody bytes.Buffer
-	multipartWriter := multipart.NewWriter(&requestBody)
-
-	fileWriter, err := multipartWriter.CreateFormFile("file", filepath.Base(filePath))
-	if err != nil {
-		t.Fatalf("Failed to create form file: %v", err)
-	}
-	if _, err := fileWriter.Write(fileContent); err != nil {
-		t.Fatalf("Failed to write file content: %v", err)
-	}
-
-	if err := multipartWriter.Close(); err != nil {
-		t.Fatalf("Failed to close multipart writer: %v", err)
-	}
-
-	request, err := http.NewRequest("GET", "/validate", &requestBody)
-	if err != nil {
-		t.Fatalf("Failed to create request: %v", err)
-	}
-
-	request.Header.Set("Content-Type", multipartWriter.FormDataContentType())
-
-	response := httptest.NewRecorder()
-
-	router.ServeHTTP(response, request)
-
-	assert.Equal(t, http.StatusNotFound, response.Code, "Expected HTTP status 404")
-}
-
 func TestInvalidJsonFormat(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.POST("/validate", validate)
+	router.POST("/validate", routes.Validate)
 
-	folderPath := "../test-files/invalid-jsons/invalid-format"
+	folderPath := "./test-data/invalid-jsons/invalid-format"
 	files, err := os.ReadDir(folderPath)
 	if err != nil {
 		t.Fatalf("Failed to read directory: %v", err)
@@ -299,9 +198,9 @@ func TestInvalidJsonFormat(t *testing.T) {
 func TestInvalidFieldType(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.POST("/validate", validate)
+	router.POST("/validate", routes.Validate)
 
-	folderPath := "../test-files/invalid-jsons/invalid-type"
+	folderPath := "./test-data/invalid-jsons/invalid-type"
 	files, err := os.ReadDir(folderPath)
 	if err != nil {
 		t.Fatalf("Failed to read directory: %v", err)
@@ -351,9 +250,9 @@ func TestInvalidFieldType(t *testing.T) {
 func TestEmptyPolicyName(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.POST("/validate", validate)
+	router.POST("/validate", routes.Validate)
 
-	filePath := "../test-files/empty-field/empty-PolicyName.json"
+	filePath := "./test-data/empty-field/empty-PolicyName.json"
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
 		t.Fatalf("Failed to read file: %v", err)
@@ -396,9 +295,9 @@ func TestEmptyPolicyName(t *testing.T) {
 func TestEmptyPolicyDocument(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.POST("/validate", validate)
+	router.POST("/validate", routes.Validate)
 
-	filePath := "../test-files/empty-field/empty-PolicyDocument.json"
+	filePath := "./test-data/empty-field/empty-PolicyDocument.json"
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
 		t.Fatalf("Failed to read file: %v", err)
@@ -441,9 +340,9 @@ func TestEmptyPolicyDocument(t *testing.T) {
 func TestEmptyPolicyNameAndDocument(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.POST("/validate", validate)
+	router.POST("/validate", routes.Validate)
 
-	folderPath := "../test-files/empty-field/empty-name-and-document"
+	folderPath := "./test-data/empty-field/empty-name-and-document"
 	files, err := os.ReadDir(folderPath)
 	if err != nil {
 		t.Fatalf("Failed to read directory: %v", err)
@@ -493,9 +392,9 @@ func TestEmptyPolicyNameAndDocument(t *testing.T) {
 func TestEmptyVersion(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.POST("/validate", validate)
+	router.POST("/validate", routes.Validate)
 
-	filePath := "../test-files/empty-field/empty-Version.json"
+	filePath := "./test-data/empty-field/empty-Version.json"
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
 		t.Fatalf("Failed to read file: %v", err)
@@ -538,9 +437,9 @@ func TestEmptyVersion(t *testing.T) {
 func TestEmptyStatement(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.POST("/validate", validate)
+	router.POST("/validate", routes.Validate)
 
-	filePath := "../test-files/empty-field/empty-Statement.json"
+	filePath := "./test-data/empty-field/empty-Statement.json"
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
 		t.Fatalf("Failed to read file: %v", err)
@@ -583,9 +482,9 @@ func TestEmptyStatement(t *testing.T) {
 func TestEmptyEffect(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.POST("/validate", validate)
+	router.POST("/validate", routes.Validate)
 
-	filePath := "../test-files/empty-field/empty-Effect.json"
+	filePath := "./test-data/empty-field/empty-Effect.json"
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
 		t.Fatalf("Failed to read file: %v", err)
@@ -628,9 +527,9 @@ func TestEmptyEffect(t *testing.T) {
 func TestEmptyActionField(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.POST("/validate", validate)
+	router.POST("/validate", routes.Validate)
 
-	folderPath := "../test-files/empty-field/empty-action"
+	folderPath := "./test-data/empty-field/empty-action"
 	files, err := os.ReadDir(folderPath)
 	if err != nil {
 		t.Fatalf("Failed to read directory: %v", err)
@@ -680,9 +579,9 @@ func TestEmptyActionField(t *testing.T) {
 func TestEmptyResourceField(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.POST("/validate", validate)
+	router.POST("/validate", routes.Validate)
 
-	folderPath := "../test-files/empty-field/empty-resource"
+	folderPath := "./test-data/empty-field/empty-resource"
 	files, err := os.ReadDir(folderPath)
 	if err != nil {
 		t.Fatalf("Failed to read directory: %v", err)
@@ -732,9 +631,9 @@ func TestEmptyResourceField(t *testing.T) {
 func TestInvalidEffectValue(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
-	router.POST("/validate", validate)
+	router.POST("/validate", routes.Validate)
 
-	filePath := "../test-files/invalid-Effect-value.json"
+	filePath := "./test-data/invalid-Effect-value.json"
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
 		t.Fatalf("Failed to read file: %v", err)
@@ -771,4 +670,108 @@ func TestInvalidEffectValue(t *testing.T) {
 	message := "invalid value: found invalid Effect value"
 
 	assert.Equal(t, message, response.Body.String(), "Expected String data")
+}
+
+func TestUnsupportedMediaType(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.POST("/validate", routes.Validate)
+
+	filePath := "./test-data/test.txt"
+	fileContent, err := os.ReadFile(filePath)
+	if err != nil {
+		t.Fatalf("Failed to read file: %v", err)
+	}
+
+	var requestBody bytes.Buffer
+	multipartWriter := multipart.NewWriter(&requestBody)
+
+	fileWriter, err := multipartWriter.CreateFormFile("file", filepath.Base(filePath))
+	if err != nil {
+		t.Fatalf("Failed to create form file: %v", err)
+	}
+	if _, err := fileWriter.Write(fileContent); err != nil {
+		t.Fatalf("Failed to write file content: %v", err)
+	}
+
+	if err := multipartWriter.Close(); err != nil {
+		t.Fatalf("Failed to close multipart writer: %v", err)
+	}
+
+	request, err := http.NewRequest("POST", "/validate", &requestBody)
+	if err != nil {
+		t.Fatalf("Failed to create request: %v", err)
+	}
+
+	request.Header.Set("Content-Type", multipartWriter.FormDataContentType())
+
+	response := httptest.NewRecorder()
+
+	router.ServeHTTP(response, request)
+
+	assert.Equal(t, http.StatusUnsupportedMediaType, response.Code, "Expected HTTP status 415")
+
+}
+
+func TestBadRequest(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.POST("./validate", routes.Validate)
+
+	testData := []byte(`{"key": "value"}`)
+	request, _ := http.NewRequest("POST", "/validate", bytes.NewBuffer(testData))
+	request.Header.Set("Content-Type", "application/json")
+
+	response := httptest.NewRecorder()
+	router.ServeHTTP(response, request)
+
+	assert.Equal(t, http.StatusBadRequest, response.Code, "Expected HTTP status 400")
+
+	request, _ = http.NewRequest("GET", "/validate", bytes.NewBuffer(testData))
+	request.Header.Set("Content-Type", "application/json")
+
+	response = httptest.NewRecorder()
+	router.ServeHTTP(response, request)
+
+	assert.Equal(t, http.StatusNotFound, response.Code, "Expected HTTP status 404")
+}
+
+func TestNotFound(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
+	router := gin.New()
+	router.POST("/validate", routes.Validate)
+
+	filePath := "./test-data/valid-jsons/valid-test1.json"
+	fileContent, err := os.ReadFile(filePath)
+	if err != nil {
+		t.Fatalf("Failed to read file: %v", err)
+	}
+
+	var requestBody bytes.Buffer
+	multipartWriter := multipart.NewWriter(&requestBody)
+
+	fileWriter, err := multipartWriter.CreateFormFile("file", filepath.Base(filePath))
+	if err != nil {
+		t.Fatalf("Failed to create form file: %v", err)
+	}
+	if _, err := fileWriter.Write(fileContent); err != nil {
+		t.Fatalf("Failed to write file content: %v", err)
+	}
+
+	if err := multipartWriter.Close(); err != nil {
+		t.Fatalf("Failed to close multipart writer: %v", err)
+	}
+
+	request, err := http.NewRequest("GET", "/validate", &requestBody)
+	if err != nil {
+		t.Fatalf("Failed to create request: %v", err)
+	}
+
+	request.Header.Set("Content-Type", multipartWriter.FormDataContentType())
+
+	response := httptest.NewRecorder()
+
+	router.ServeHTTP(response, request)
+
+	assert.Equal(t, http.StatusNotFound, response.Code, "Expected HTTP status 404")
 }

@@ -1,11 +1,11 @@
-package api
+package handlers
 
 import (
 	"fmt"
 	"regexp"
 )
 
-func isJsonValid(policy Policy) bool {
+func IsJsonValid(policy Policy) bool {
 	var statements []Statement = policy.PolicyDocument.Statement
 	for _, statement := range statements {
 		if statement.Resource != nil {

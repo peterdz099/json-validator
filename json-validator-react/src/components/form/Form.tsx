@@ -38,7 +38,6 @@ const Form: React.FC<FormProps> = (props) => {
             http.validateJson(file).then(data => {
                 isJsonValid = data.valid;
                 message = data.message; 
-                console.log(isJsonValid, message)
                 props.onJsonValidation(isJsonValid, message);
                 if (formRef.current) {
                   formRef.current.reset();

@@ -1,4 +1,4 @@
-package api
+package handlers
 
 type Policy struct {
 	PolicyName     string         `json:"PolicyName"`

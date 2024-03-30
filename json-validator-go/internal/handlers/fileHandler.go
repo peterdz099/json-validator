@@ -1,4 +1,4 @@
-package api
+package handlers
 
 import (
 	"bytes"
@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func readFile(c *gin.Context) (Policy, string, error) {
+func ReadFile(c *gin.Context) (Policy, string, error) {
 	file, err := c.FormFile("file")
 
 	if err != nil {
