@@ -16,6 +16,7 @@ import (
 )
 
 func TestValidJsons(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -77,6 +78,7 @@ func TestValidJsons(t *testing.T) {
 }
 
 func TestNotValidJsons(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -139,6 +141,7 @@ func TestNotValidJsons(t *testing.T) {
 }
 
 func TestUnsupportedMediaType(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -179,6 +182,7 @@ func TestUnsupportedMediaType(t *testing.T) {
 }
 
 func TestBadRequest(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -201,10 +205,11 @@ func TestBadRequest(t *testing.T) {
 }
 
 func TestNotFound(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
-	filePath := "../test-files/valid-jsons/test1.json"
+	filePath := "../test-files/valid-jsons/valid-test1.json"
 	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
 		t.Fatalf("Failed to read file: %v", err)
@@ -240,6 +245,7 @@ func TestNotFound(t *testing.T) {
 }
 
 func TestInvalidJsonFormat(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -291,6 +297,7 @@ func TestInvalidJsonFormat(t *testing.T) {
 }
 
 func TestInvalidFieldType(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -342,6 +349,7 @@ func TestInvalidFieldType(t *testing.T) {
 }
 
 func TestEmptyPolicyName(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -386,6 +394,7 @@ func TestEmptyPolicyName(t *testing.T) {
 }
 
 func TestEmptyPolicyDocument(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -430,6 +439,7 @@ func TestEmptyPolicyDocument(t *testing.T) {
 }
 
 func TestEmptyPolicyNameAndDocument(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -481,6 +491,7 @@ func TestEmptyPolicyNameAndDocument(t *testing.T) {
 }
 
 func TestEmptyVersion(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -525,6 +536,7 @@ func TestEmptyVersion(t *testing.T) {
 }
 
 func TestEmptyStatement(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -569,6 +581,7 @@ func TestEmptyStatement(t *testing.T) {
 }
 
 func TestEmptyEffect(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -613,6 +626,7 @@ func TestEmptyEffect(t *testing.T) {
 }
 
 func TestEmptyActionField(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -664,6 +678,7 @@ func TestEmptyActionField(t *testing.T) {
 }
 
 func TestEmptyResourceField(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -715,6 +730,7 @@ func TestEmptyResourceField(t *testing.T) {
 }
 
 func TestInvalidEffectValue(t *testing.T) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.New()
 	router.POST("/validate", validate)
 
@@ -755,5 +771,4 @@ func TestInvalidEffectValue(t *testing.T) {
 	message := "invalid value: found invalid Effect value"
 
 	assert.Equal(t, message, response.Body.String(), "Expected String data")
-
 }

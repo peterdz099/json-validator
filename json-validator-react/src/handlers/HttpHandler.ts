@@ -26,11 +26,9 @@ export class HttpHandler {
 
         } catch (error) {
             if (axios.isAxiosError(error)) {
-                console.log('error message: ', error.request.responseText);
-                return {valid: false, message: error.request.responseText}
+                return {valid: false, message: error.message}
             } else {
-                console.log('unexpected error: ', error);
-                return {valid: false, message:'An unexpected error occurred'}
+                return {valid: false, message: "An unexpected error occurred"}
             }
         }
     }
